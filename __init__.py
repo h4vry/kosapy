@@ -13,11 +13,14 @@ HEADERS={"content-type": "applicaion/xml;encoding=utf-8",
 requests_cache.install_cache('kosapy_cache', expire_after=24*60*60)
 
 class Kosapy:
-    def __init__(self, url, auth, verbose=False):
+    def __init__(self, url, auth=None, token=None, verbose=False):
         self._kosapi=url
         self._auth=auth
+        self._token=token
         self._verbose=verbose
         self._resources={}
+
+        assert auth or token
 
     def __getattr__(self, item):
         if item not in self._resources:
@@ -29,7 +32,12 @@ class Kosapy:
         if self._verbose:
             print("Fetching "+self._kosapi+location)
             
-        r=requests.get(self._kosapi+location, auth=self._auth, params=params, headers=HEADERS)
+        if self._token:
+            HEADERS["authorization"] = "Bearer {}".format(self._token)
+            r=requests.get(self._kosapi+location, params=params, headers=HEADERS)
+        else:
+            r=requests.get(self._kosapi+location, auth=self._auth, params=params, headers=HEADERS)
+
         r.encoding='utf-8'
         if r.status_code!=200:
             if r.status_code==403:
