@@ -1,6 +1,3 @@
-__author__ = 'martinjr'
-__all__ = ["Kosapy"]
-
 import xml.sax
 import requests
 import requests_cache
